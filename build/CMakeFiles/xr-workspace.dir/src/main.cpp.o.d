@@ -84,6 +84,7 @@ CMakeFiles/xr-workspace.dir/src/main.cpp.o: \
  /usr/include/GLES2/gl2.h /usr/include/GLES2/gl2platform.h \
  /home/blin/Documents/source/xr-workspace/build/gen/wlr-layer-shell-unstable-v1-client.h \
  /home/blin/Documents/source/xr-workspace/build/gen/xdg-output-unstable-v1-client.h \
+ /home/blin/Documents/source/xr-workspace/build/gen/hyprland-global-shortcuts-v1-client.h \
  /usr/include/c++/15.2.1/cassert /usr/include/assert.h \
  /usr/include/c++/15.2.1/cstdio /usr/include/stdio.h \
  /usr/include/bits/types/__fpos_t.h /usr/include/bits/types/__mbstate_t.h \
@@ -102,7 +103,23 @@ CMakeFiles/xr-workspace.dir/src/main.cpp.o: \
  /usr/include/linux/stddef.h /usr/include/asm/posix_types.h \
  /usr/include/asm/posix_types_64.h /usr/include/asm-generic/posix_types.h \
  /usr/include/bits/openat2.h /usr/include/bits/stat.h \
- /usr/include/bits/struct_stat.h /usr/include/c++/15.2.1/string \
+ /usr/include/bits/struct_stat.h /usr/include/signal.h \
+ /usr/include/bits/signum-generic.h /usr/include/bits/signum-arch.h \
+ /usr/include/bits/types/sig_atomic_t.h \
+ /usr/include/bits/types/siginfo_t.h /usr/include/bits/types/__sigval_t.h \
+ /usr/include/bits/siginfo-arch.h /usr/include/bits/siginfo-consts.h \
+ /usr/include/bits/siginfo-consts-arch.h \
+ /usr/include/bits/types/sigval_t.h /usr/include/bits/types/sigevent_t.h \
+ /usr/include/bits/sigevent-consts.h /usr/include/bits/sigaction.h \
+ /usr/include/bits/sigcontext.h /usr/include/bits/types/stack_t.h \
+ /usr/include/sys/ucontext.h /usr/include/bits/sigstack.h \
+ /usr/include/bits/sigstksz.h /usr/include/unistd.h \
+ /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
+ /usr/include/bits/confname.h /usr/include/bits/getopt_posix.h \
+ /usr/include/bits/getopt_core.h /usr/include/bits/unistd_ext.h \
+ /usr/include/linux/close_range.h /usr/include/bits/ss_flags.h \
+ /usr/include/bits/types/struct_sigstack.h /usr/include/bits/sigthread.h \
+ /usr/include/bits/signal_ext.h /usr/include/c++/15.2.1/string \
  /usr/include/c++/15.2.1/bits/stringfwd.h \
  /usr/include/c++/15.2.1/bits/memoryfwd.h \
  /usr/include/c++/15.2.1/bits/char_traits.h \
@@ -148,15 +165,7 @@ CMakeFiles/xr-workspace.dir/src/main.cpp.o: \
  /usr/include/c++/15.2.1/tuple /usr/include/sys/mman.h \
  /usr/include/bits/mman.h /usr/include/bits/mman-map-flags-generic.h \
  /usr/include/bits/mman-linux.h /usr/include/bits/mman-shared.h \
- /usr/include/bits/mman_ext.h /usr/include/sys/stat.h \
- /usr/include/bits/statx.h /usr/include/linux/stat.h \
- /usr/include/bits/statx-generic.h \
- /usr/include/bits/types/struct_statx_timestamp.h \
- /usr/include/bits/types/struct_statx.h /usr/include/unistd.h \
- /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
- /usr/include/bits/confname.h /usr/include/bits/getopt_posix.h \
- /usr/include/bits/getopt_core.h /usr/include/bits/unistd_ext.h \
- /usr/include/linux/close_range.h /usr/include/c++/15.2.1/vector \
+ /usr/include/bits/mman_ext.h /usr/include/c++/15.2.1/vector \
  /usr/include/c++/15.2.1/bits/stl_uninitialized.h \
  /usr/include/c++/15.2.1/bits/stl_vector.h \
  /usr/include/c++/15.2.1/bits/stl_bvector.h \
@@ -168,23 +177,4 @@ CMakeFiles/xr-workspace.dir/src/main.cpp.o: \
  /usr/include/c++/15.2.1/bits/uniform_int_dist.h \
  /usr/include/c++/15.2.1/bits/stl_tempbuf.h \
  /usr/include/c++/15.2.1/pstl/glue_algorithm_defs.h \
- /usr/include/c++/15.2.1/pstl/execution_defs.h \
- /usr/include/c++/15.2.1/chrono /usr/include/c++/15.2.1/bits/chrono.h \
- /usr/include/c++/15.2.1/ratio /usr/include/c++/15.2.1/cstdint \
- /usr/include/c++/15.2.1/ctime /usr/include/time.h \
- /usr/include/bits/time.h /usr/include/bits/timex.h \
- /usr/include/bits/types/struct_tm.h \
- /usr/include/bits/types/struct_itimerspec.h \
- /usr/include/c++/15.2.1/bits/parse_numbers.h /usr/include/signal.h \
- /usr/include/bits/signum-generic.h /usr/include/bits/signum-arch.h \
- /usr/include/bits/types/sig_atomic_t.h \
- /usr/include/bits/types/siginfo_t.h /usr/include/bits/types/__sigval_t.h \
- /usr/include/bits/siginfo-arch.h /usr/include/bits/siginfo-consts.h \
- /usr/include/bits/siginfo-consts-arch.h \
- /usr/include/bits/types/sigval_t.h /usr/include/bits/types/sigevent_t.h \
- /usr/include/bits/sigevent-consts.h /usr/include/bits/sigaction.h \
- /usr/include/bits/sigcontext.h /usr/include/bits/types/stack_t.h \
- /usr/include/sys/ucontext.h /usr/include/bits/sigstack.h \
- /usr/include/bits/sigstksz.h /usr/include/bits/ss_flags.h \
- /usr/include/bits/types/struct_sigstack.h /usr/include/bits/sigthread.h \
- /usr/include/bits/signal_ext.h
+ /usr/include/c++/15.2.1/pstl/execution_defs.h

@@ -87,13 +87,22 @@ gen/xdg-output-unstable-v1-client.h: /home/blin/Documents/source/xr-workspace/pr
 gen/xdg-output-unstable-v1-client.c: gen/xdg-output-unstable-v1-client.h
 	@$(CMAKE_COMMAND) -E touch_nocreate gen/xdg-output-unstable-v1-client.c
 
+gen/hyprland-global-shortcuts-v1-client.h: /home/blin/Documents/source/xr-workspace/protocols/hyprland-global-shortcuts-v1.xml
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/blin/Documents/source/xr-workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating gen/hyprland-global-shortcuts-v1-client.h, gen/hyprland-global-shortcuts-v1-client.c"
+	/usr/bin/wayland-scanner client-header /home/blin/Documents/source/xr-workspace/protocols/hyprland-global-shortcuts-v1.xml /home/blin/Documents/source/xr-workspace/build/gen/hyprland-global-shortcuts-v1-client.h
+	/usr/bin/wayland-scanner private-code /home/blin/Documents/source/xr-workspace/protocols/hyprland-global-shortcuts-v1.xml /home/blin/Documents/source/xr-workspace/build/gen/hyprland-global-shortcuts-v1-client.c
+	sed -i "s/\\bnamespace\\b/wl_namespace/g" /home/blin/Documents/source/xr-workspace/build/gen/hyprland-global-shortcuts-v1-client.h
+
+gen/hyprland-global-shortcuts-v1-client.c: gen/hyprland-global-shortcuts-v1-client.h
+	@$(CMAKE_COMMAND) -E touch_nocreate gen/hyprland-global-shortcuts-v1-client.c
+
 CMakeFiles/xr-workspace.dir/codegen:
 .PHONY : CMakeFiles/xr-workspace.dir/codegen
 
 CMakeFiles/xr-workspace.dir/src/main.cpp.o: CMakeFiles/xr-workspace.dir/flags.make
 CMakeFiles/xr-workspace.dir/src/main.cpp.o: /home/blin/Documents/source/xr-workspace/src/main.cpp
 CMakeFiles/xr-workspace.dir/src/main.cpp.o: CMakeFiles/xr-workspace.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/blin/Documents/source/xr-workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/xr-workspace.dir/src/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/blin/Documents/source/xr-workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/xr-workspace.dir/src/main.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/xr-workspace.dir/src/main.cpp.o -MF CMakeFiles/xr-workspace.dir/src/main.cpp.o.d -o CMakeFiles/xr-workspace.dir/src/main.cpp.o -c /home/blin/Documents/source/xr-workspace/src/main.cpp
 
 CMakeFiles/xr-workspace.dir/src/main.cpp.i: cmake_force
@@ -107,7 +116,7 @@ CMakeFiles/xr-workspace.dir/src/main.cpp.s: cmake_force
 CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.o: CMakeFiles/xr-workspace.dir/flags.make
 CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.o: gen/wlr-layer-shell-unstable-v1-client.c
 CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.o: CMakeFiles/xr-workspace.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/blin/Documents/source/xr-workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/blin/Documents/source/xr-workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.o -MF CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.o.d -o CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.o -c /home/blin/Documents/source/xr-workspace/build/gen/wlr-layer-shell-unstable-v1-client.c
 
 CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.i: cmake_force
@@ -121,7 +130,7 @@ CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.s: cmake_fo
 CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o: CMakeFiles/xr-workspace.dir/flags.make
 CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o: gen/xdg-output-unstable-v1-client.c
 CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o: CMakeFiles/xr-workspace.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/blin/Documents/source/xr-workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/blin/Documents/source/xr-workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o -MF CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o.d -o CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o -c /home/blin/Documents/source/xr-workspace/build/gen/xdg-output-unstable-v1-client.c
 
 CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.i: cmake_force
@@ -132,11 +141,26 @@ CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.s"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/blin/Documents/source/xr-workspace/build/gen/xdg-output-unstable-v1-client.c -o CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.s
 
+CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o: CMakeFiles/xr-workspace.dir/flags.make
+CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o: gen/hyprland-global-shortcuts-v1-client.c
+CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o: CMakeFiles/xr-workspace.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/blin/Documents/source/xr-workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o -MF CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o.d -o CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o -c /home/blin/Documents/source/xr-workspace/build/gen/hyprland-global-shortcuts-v1-client.c
+
+CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/blin/Documents/source/xr-workspace/build/gen/hyprland-global-shortcuts-v1-client.c > CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.i
+
+CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/blin/Documents/source/xr-workspace/build/gen/hyprland-global-shortcuts-v1-client.c -o CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.s
+
 # Object files for target xr-workspace
 xr__workspace_OBJECTS = \
 "CMakeFiles/xr-workspace.dir/src/main.cpp.o" \
 "CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.o" \
-"CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o"
+"CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o" \
+"CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o"
 
 # External object files for target xr-workspace
 xr__workspace_EXTERNAL_OBJECTS =
@@ -144,10 +168,11 @@ xr__workspace_EXTERNAL_OBJECTS =
 xr-workspace: CMakeFiles/xr-workspace.dir/src/main.cpp.o
 xr-workspace: CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.o
 xr-workspace: CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o
+xr-workspace: CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o
 xr-workspace: CMakeFiles/xr-workspace.dir/build.make
 xr-workspace: CMakeFiles/xr-workspace.dir/compiler_depend.ts
 xr-workspace: CMakeFiles/xr-workspace.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/blin/Documents/source/xr-workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable xr-workspace"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/blin/Documents/source/xr-workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable xr-workspace"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/xr-workspace.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -158,6 +183,8 @@ CMakeFiles/xr-workspace.dir/clean:
 	$(CMAKE_COMMAND) -P CMakeFiles/xr-workspace.dir/cmake_clean.cmake
 .PHONY : CMakeFiles/xr-workspace.dir/clean
 
+CMakeFiles/xr-workspace.dir/depend: gen/hyprland-global-shortcuts-v1-client.c
+CMakeFiles/xr-workspace.dir/depend: gen/hyprland-global-shortcuts-v1-client.h
 CMakeFiles/xr-workspace.dir/depend: gen/wlr-layer-shell-unstable-v1-client.c
 CMakeFiles/xr-workspace.dir/depend: gen/wlr-layer-shell-unstable-v1-client.h
 CMakeFiles/xr-workspace.dir/depend: gen/xdg-output-unstable-v1-client.c

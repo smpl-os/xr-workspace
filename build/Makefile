@@ -129,6 +129,30 @@ xr-workspace/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/xr-workspace.dir/build.make CMakeFiles/xr-workspace.dir/build
 .PHONY : xr-workspace/fast
 
+gen/hyprland-global-shortcuts-v1-client.o: gen/hyprland-global-shortcuts-v1-client.c.o
+.PHONY : gen/hyprland-global-shortcuts-v1-client.o
+
+# target to build an object file
+gen/hyprland-global-shortcuts-v1-client.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/xr-workspace.dir/build.make CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o
+.PHONY : gen/hyprland-global-shortcuts-v1-client.c.o
+
+gen/hyprland-global-shortcuts-v1-client.i: gen/hyprland-global-shortcuts-v1-client.c.i
+.PHONY : gen/hyprland-global-shortcuts-v1-client.i
+
+# target to preprocess a source file
+gen/hyprland-global-shortcuts-v1-client.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/xr-workspace.dir/build.make CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.i
+.PHONY : gen/hyprland-global-shortcuts-v1-client.c.i
+
+gen/hyprland-global-shortcuts-v1-client.s: gen/hyprland-global-shortcuts-v1-client.c.s
+.PHONY : gen/hyprland-global-shortcuts-v1-client.s
+
+# target to generate assembly for a file
+gen/hyprland-global-shortcuts-v1-client.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/xr-workspace.dir/build.make CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.s
+.PHONY : gen/hyprland-global-shortcuts-v1-client.c.s
+
 gen/wlr-layer-shell-unstable-v1-client.o: gen/wlr-layer-shell-unstable-v1-client.c.o
 .PHONY : gen/wlr-layer-shell-unstable-v1-client.o
 
@@ -210,6 +234,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... xr-workspace"
+	@echo "... gen/hyprland-global-shortcuts-v1-client.o"
+	@echo "... gen/hyprland-global-shortcuts-v1-client.i"
+	@echo "... gen/hyprland-global-shortcuts-v1-client.s"
 	@echo "... gen/wlr-layer-shell-unstable-v1-client.o"
 	@echo "... gen/wlr-layer-shell-unstable-v1-client.i"
 	@echo "... gen/wlr-layer-shell-unstable-v1-client.s"

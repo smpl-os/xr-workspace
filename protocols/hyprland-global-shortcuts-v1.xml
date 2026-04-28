@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="hyprland_global_shortcuts_v1">
+  <copyright>
+    Copyright © 2022 Vaxry
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+
+    1. Redistributions of source code must retain the above copyright notice, this
+       list of conditions and the following disclaimer.
+
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
+       and/or other materials provided with the distribution.
+
+    3. Neither the name of the copyright holder nor the names of its
+       contributors may be used to endorse or promote products derived from
+       this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  </copyright>
+
+  <interface name="hyprland_global_shortcuts_manager_v1" version="1">
+    <description summary="manager for global shortcuts">
+      This interface allows a client to register global keyboard shortcuts that
+      trigger even when the client does not have keyboard focus.
+    </description>
+
+    <enum name="error">
+      <entry name="already_taken" value="0"
+             summary="the shortcut id/description already exists"/>
+    </enum>
+
+    <request name="register_shortcut">
+      <description summary="register a global shortcut">
+        Register a global shortcut. The shortcut will be fired when the user
+        presses the specified key combination. The compositor will fire the
+        shortcut even if the client does not have keyboard focus.
+
+        The id must be unique to the client. The app_id and description are
+        human-readable strings used for UI. The trigger_description is an
+        optional default key combination description (compositor-specific format).
+      </description>
+      <arg name="shortcut"           type="new_id" interface="hyprland_global_shortcut_v1"/>
+      <arg name="id"                 type="string"  summary="shortcut identifier"/>
+      <arg name="app_id"             type="string"  summary="application id"/>
+      <arg name="description"        type="string"  summary="human-readable description"/>
+      <arg name="trigger_description" type="string" summary="default trigger (compositor hint)"/>
+    </request>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy the manager"/>
+    </request>
+  </interface>
+
+  <interface name="hyprland_global_shortcut_v1" version="1">
+    <description summary="a registered global shortcut">
+      A registered global keyboard shortcut. The client receives events when
+      the compositor fires the shortcut.
+    </description>
+
+    <event name="pressed">
+      <description summary="shortcut was pressed">
+        The shortcut was pressed by the user.
+      </description>
+      <arg name="tv_sec_hi"  type="uint" summary="timestamp seconds high 32 bits"/>
+      <arg name="tv_sec_lo"  type="uint" summary="timestamp seconds low 32 bits"/>
+      <arg name="tv_nsec"    type="uint" summary="timestamp nanoseconds"/>
+    </event>
+
+    <event name="released">
+      <description summary="shortcut was released">
+        The shortcut was released by the user.
+      </description>
+      <arg name="tv_sec_hi"  type="uint" summary="timestamp seconds high 32 bits"/>
+      <arg name="tv_sec_lo"  type="uint" summary="timestamp seconds low 32 bits"/>
+      <arg name="tv_nsec"    type="uint" summary="timestamp nanoseconds"/>
+    </event>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy this shortcut"/>
+    </request>
+  </interface>
+</protocol>

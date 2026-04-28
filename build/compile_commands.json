@@ -16,5 +16,11 @@
   "command": "/usr/bin/cc  -I/home/blin/Documents/source/xr-workspace/build/gen -I/home/blin/Documents/source/xr-workspace/src -O3 -DNDEBUG -Wall -Wextra -o CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o -c /home/blin/Documents/source/xr-workspace/build/gen/xdg-output-unstable-v1-client.c",
   "file": "/home/blin/Documents/source/xr-workspace/build/gen/xdg-output-unstable-v1-client.c",
   "output": "CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o"
+},
+{
+  "directory": "/home/blin/Documents/source/xr-workspace/build",
+  "command": "/usr/bin/cc  -I/home/blin/Documents/source/xr-workspace/build/gen -I/home/blin/Documents/source/xr-workspace/src -O3 -DNDEBUG -Wall -Wextra -o CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o -c /home/blin/Documents/source/xr-workspace/build/gen/hyprland-global-shortcuts-v1-client.c",
+  "file": "/home/blin/Documents/source/xr-workspace/build/gen/hyprland-global-shortcuts-v1-client.c",
+  "output": "CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o"
 }
 ]

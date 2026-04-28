@@ -42,6 +42,7 @@ endmacro()
 
 gen_protocol(wlr-layer-shell-unstable-v1)
 gen_protocol(xdg-output-unstable-v1)
+gen_protocol(hyprland-global-shortcuts-v1)
 
 add_executable(xr-workspace
     src/main.cpp

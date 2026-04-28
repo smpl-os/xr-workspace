@@ -5,6 +5,7 @@ xr-workspace: \
   CMakeFiles/xr-workspace.dir/src/main.cpp.o \
   CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.o \
   CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o \
+  CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libwayland-client.so \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libwayland-egl.so \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libwayland-client.so \
@@ -67,6 +68,8 @@ CMakeFiles/xr-workspace.dir/src/main.cpp.o:
 CMakeFiles/xr-workspace.dir/gen/wlr-layer-shell-unstable-v1-client.c.o:
 
 CMakeFiles/xr-workspace.dir/gen/xdg-output-unstable-v1-client.c.o:
+
+CMakeFiles/xr-workspace.dir/gen/hyprland-global-shortcuts-v1-client.c.o:
 
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libwayland-client.so:
 

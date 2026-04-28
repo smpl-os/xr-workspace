@@ -10,6 +10,7 @@
 
 #include "wlr-layer-shell-unstable-v1-client.h"
 #include "xdg-output-unstable-v1-client.h"
+#include "hyprland-global-shortcuts-v1-client.h"
 
 #include <cassert>
 #include <cmath>
@@ -107,6 +108,8 @@ static struct wl_display    *g_display    = nullptr;
 static struct wl_compositor *g_compositor = nullptr;
 static struct zwlr_layer_shell_v1 *g_layer_shell = nullptr;
 static struct wl_output     *g_xr_output  = nullptr;
+static struct hyprland_global_shortcuts_manager_v1 *g_shortcuts_mgr     = nullptr;
+static struct hyprland_global_shortcut_v1          *g_shortcut_recenter  = nullptr;
 
 // Track all outputs for name-based selection
 struct OutputInfo {
@@ -505,6 +508,18 @@ static const wl_output_listener g_output_listener = {
     .description = output_description,
 };
 
+// ─── Global shortcut callbacks ────────────────────────────────────────────────
+static void shortcut_pressed(void*, struct hyprland_global_shortcut_v1*, uint32_t, uint32_t, uint32_t) {
+    // Fired by Hyprland when Ctrl+Shift+C is pressed — queue a recenter
+    g_do_recenter = 1;
+}
+static void shortcut_released(void*, struct hyprland_global_shortcut_v1*, uint32_t, uint32_t, uint32_t) {}
+
+static const hyprland_global_shortcut_v1_listener g_shortcut_listener = {
+    .pressed  = shortcut_pressed,
+    .released = shortcut_released,
+};
+
 static void registry_global(void*, struct wl_registry *registry,
     uint32_t name, const char *interface, uint32_t version)
 {
@@ -521,6 +536,9 @@ static void registry_global(void*, struct wl_registry *registry,
         g_outputs.push_back({out, "", 0, 0});
         if (g_target_output_name.empty())
             g_xr_output = out; // default: last-enumerated output (glasses appear last)
+    } else if (!strcmp(interface, hyprland_global_shortcuts_manager_v1_interface.name)) {
+        g_shortcuts_mgr = static_cast<hyprland_global_shortcuts_manager_v1*>(
+            wl_registry_bind(registry, name, &hyprland_global_shortcuts_manager_v1_interface, 1u));
     }
 }
 static void registry_global_remove(void*, struct wl_registry*, uint32_t) {}
@@ -540,9 +558,16 @@ static void print_usage(const char *a) {
         "  --fov DEG       Glasses horizontal FOV in degrees (default: 46.0)\n"
         "  --recenter      Prompt to recenter before rendering\n"
         "  --help\n\n"
+        "Keyboard shortcut (registered natively with Hyprland):\n"
+        "  Ctrl+Shift+C    Snap/recenter to current head position\n"
+        "  Works globally — no focus needed on the XR surface.\n\n"
         "Signals:\n"
         "  SIGINT/SIGTERM  Quit\n"
-        "  SIGUSR1         Recenter view to current head position\n", a);
+        "  SIGUSR1         Recenter (same as Ctrl+Shift+C)\n\n"
+        "About drift:\n"
+        "  IMU yaw drift is a hardware property of the gyroscope.\n"
+        "  Small errors accumulate over time regardless of software.\n"
+        "  Press Ctrl+Shift+C whenever the view has drifted to snap it back.\n", a);
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -629,7 +654,25 @@ int main(int argc, char **argv) {
         recenter();
     }
 
-    fprintf(stderr, "xr-workspace: rendering (SIGUSR1=recenter, SIGINT=quit)\n");
+    // ── Register global shortcut (Ctrl+Shift+C) ──
+    // hyprland_global_shortcuts lets us receive this key even without keyboard focus.
+    if (g_shortcuts_mgr) {
+        g_shortcut_recenter = hyprland_global_shortcuts_manager_v1_register_shortcut(
+            g_shortcuts_mgr,
+            "recenter",           // id — unique per client
+            "xr-workspace",       // app_id
+            "Recenter XR view",   // description shown in compositor keybind UI
+            "CTRL SHIFT C");      // suggested default trigger (Hyprland format)
+        hyprland_global_shortcut_v1_add_listener(g_shortcut_recenter, &g_shortcut_listener, nullptr);
+        wl_display_roundtrip(g_display);
+        fprintf(stderr, "xr-workspace: global shortcut registered — Ctrl+Shift+C to recenter\n");
+    } else {
+        fprintf(stderr, "xr-workspace: hyprland_global_shortcuts not available\n"
+                        "  Fallback: add to hyprland.conf:\n"
+                        "    bind = CTRL SHIFT, C, exec, kill -USR1 $(pgrep xr-workspace)\n");
+    }
+
+    fprintf(stderr, "xr-workspace: rendering (Ctrl+Shift+C or SIGUSR1 to recenter)\n");
 
     // ── Render loop — driven by wl_surface.frame callbacks ──
     // wl_display_dispatch() blocks until the compositor sends a frame callback
@@ -653,6 +696,8 @@ int main(int argc, char **argv) {
     if (g_egl_context != EGL_NO_CONTEXT)  eglDestroyContext(g_egl_display, g_egl_context);
     if (g_egl_display != EGL_NO_DISPLAY)  eglTerminate(g_egl_display);
     if (g_egl_window) wl_egl_window_destroy(g_egl_window);
+    if (g_shortcut_recenter) hyprland_global_shortcut_v1_destroy(g_shortcut_recenter);
+    if (g_shortcuts_mgr)     hyprland_global_shortcuts_manager_v1_destroy(g_shortcuts_mgr);
     if (g_layer_surf)  zwlr_layer_surface_v1_destroy(g_layer_surf);
     if (g_surface)     wl_surface_destroy(g_surface);
     if (g_layer_shell) zwlr_layer_shell_v1_destroy(g_layer_shell);
