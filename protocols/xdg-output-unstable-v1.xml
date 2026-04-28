@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="xdg_output_unstable_v1">
+  <copyright>
+    Copyright © 2017 Red Hat Inc.
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+  </copyright>
+
+  <interface name="zxdg_output_manager_v1" version="3">
+    <description summary="manage xdg_output objects">
+      A global factory interface for xdg_output objects.
+    </description>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy the xdg_output_manager object"/>
+    </request>
+
+    <request name="get_xdg_output">
+      <description summary="create an xdg output from a wl_output">
+        This creates a new xdg_output object for the given wl_output.
+      </description>
+      <arg name="id" type="new_id" interface="zxdg_output_v1"/>
+      <arg name="output" type="object" interface="wl_output"/>
+    </request>
+  </interface>
+
+  <interface name="zxdg_output_v1" version="3">
+    <description summary="compositor logical output region">
+      An xdg_output describes part of the compositor geometry.
+      This typically corresponds to a monitor that displays part of the
+      compositor space.
+      For objects version 3 onwards, after all the xdg_output properties have
+      been sent (when the object is created and when properties are updated),
+      a wl_output.done event is sent. This allows changes to the output
+      properties to be seen as atomic, even if they happen via multiple events.
+      For objects version 1 and 2, wl_display.sync has to be used as a
+      synchronization mechanism, wl_output.done is not sent for xdg_output
+      objects, therefore applications should not use it.
+    </description>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy the xdg_output object"/>
+    </request>
+
+    <event name="logical_position">
+      <description summary="position of the output within the global compositor space">
+        The position event describes the location of the wl_output within the
+        global compositor space.
+        The logical_position event is sent after creating an xdg_output (see
+        xdg_output_manager.get_xdg_output) and whenever the location of the
+        output changes within the global compositor space.
+      </description>
+      <arg name="x" type="int" summary="x position within the global compositor space"/>
+      <arg name="y" type="int" summary="y position within the global compositor space"/>
+    </event>
+
+    <event name="logical_size">
+      <description summary="size of the output in the global compositor space">
+        The logical_size event describes the size of the output in the global
+        compositor space.
+        Most regular Wayland clients should not pay attention to this and
+        would rather rely on xdg_shell interfaces.
+        Some clients such as Xwayland, however, need this to configure
+        themselves accordingly.
+        The logical_size event is sent after creating an xdg_output (see
+        xdg_output_manager.get_xdg_output) and whenever the logical size of
+        the output changes, either as a result of a change in the applied
+        transform or scale, or of a change in the compositor's internal
+        representation of the output.
+      </description>
+      <arg name="width" type="int" summary="width in global compositor space"/>
+      <arg name="height" type="int" summary="height in global compositor space"/>
+    </event>
+
+    <event name="done" since="1">
+      <description summary="all information about the output have been sent">
+        This event is sent after all other properties of an xdg_output have
+        been sent.
+        This allows changes to the xdg_output properties to be seen as
+        atomic, even if they happen via multiple events.
+        For objects version 3 onwards, this event is superseded by the
+        wl_output.done event, which is sent in the same situation.
+        So, for output objects with version 3 and higher, the client should
+        avoid using the done event and instead use the wl_output.done event.
+      </description>
+    </event>
+
+    <event name="name" since="2">
+      <description summary="name of this output">
+        Many compositors will assign user-friendly names to their outputs, show
+        them to the user, allow the user to refer to an output, etc. The client
+        may wish to know this name as well to offer the user similar behaviors.
+        The naming convention is compositor defined, but limited to
+        alphanumeric characters and dashes (-). Each name is unique among all
+        wl_output globals, but if a wl_output global is destroyed the same name
+        may be reused later. The names will also remain consistent across
+        sessions with the same hardware and software configuration.
+        Examples of names include 'HDMI-A-1', 'WL-1', 'X11-1', etc. However, do
+        not assume that the name is a reflection of an underlying DRM connector,
+        X11 connection, etc.
+        The name event is sent after binding the output object and whenever the
+        name of the output changes. The name is also sent when creating an
+        xdg_output (see xdg_output_manager.get_xdg_output).
+      </description>
+      <arg name="name" type="string" summary="output's name"/>
+    </event>
+
+    <event name="description" since="2">
+      <description summary="human-readable description of this output">
+        Many compositors can produce human-readable descriptions of their
+        outputs.  The client may wish to know this description as well, e.g for
+        output selection purposes.
+        The description is a UTF-8 string with no convention defined for its
+        contents. Examples might include 'Foocorp 11" Display' or 'Virtual X11
+        output via :1'.
+        The description event is sent after binding the output object and
+        whenever the description of the output changes. The description is also
+        sent when creating an xdg_output (see xdg_output_manager.get_xdg_output).
+      </description>
+      <arg name="description" type="string" summary="output's description"/>
+    </event>
+  </interface>
+</protocol>

@@ -1,0 +1,3 @@
+# Hashes of file build rules.
+97e884f8e9f11d40c716bc597b698460 gen/wlr-layer-shell-unstable-v1-client.h
+05c93a78191e3642955db47fbbf38240 gen/xdg-output-unstable-v1-client.h
