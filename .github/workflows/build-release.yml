@@ -1,0 +1,53 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [master]
+    tags:    ['v*']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux/archlinux:latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm \
+            git cmake gcc pkgconf \
+            wayland wayland-protocols \
+            mesa libglvnd
+
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j$(nproc)
+          strip build/xr-workspace
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: xr-workspace-arch-linux
+          path: build/xr-workspace
+
+      # On tag push → create a versioned GitHub release
+      - name: Release (tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/xr-workspace
+          generate_release_notes: true
+
+      # On master push → update the rolling "latest" pre-release
+      - name: Release (latest)
+        if: github.ref == 'refs/heads/master'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Latest build"
+          prerelease: true
+          files: build/xr-workspace
