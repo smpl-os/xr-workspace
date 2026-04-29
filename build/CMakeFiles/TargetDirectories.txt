@@ -1,3 +1,0 @@
-/home/blin/Documents/source/xr-workspace/build/CMakeFiles/xr-workspace.dir
-/home/blin/Documents/source/xr-workspace/build/CMakeFiles/edit_cache.dir
-/home/blin/Documents/source/xr-workspace/build/CMakeFiles/rebuild_cache.dir
