@@ -1,0 +1,17 @@
+[Unit]
+Description=VITURE XR glasses auto-launch watcher (xr-workspace)
+Documentation=https://github.com/smpl-os/xr-workspace
+# Run inside the graphical user session so it can reach the compositor sockets.
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/xr-glasses-hotplugd
+Restart=always
+RestartSec=2
+# The watcher is idle until glasses appear; keep it lightweight.
+Nice=5
+
+[Install]
+WantedBy=graphical-session.target
