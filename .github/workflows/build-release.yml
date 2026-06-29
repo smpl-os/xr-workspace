@@ -30,18 +30,36 @@ jobs:
           cmake --build build -j$(nproc)
           strip build/xr-workspace
 
+      - name: Package release tarball
+        # Bundle the renderer binary together with the control clients (xrctl,
+        # xr-game) and the hotplug watcher so a single asset named
+        # xr-workspace-<version>-x86_64.tar.gz carries every artifact that
+        # downstream consumers (smpl-apps) need.
+        run: |
+          set -euo pipefail
+          version=$(tr -d '[:space:]' < VERSION)
+          dist="xr-workspace-${version}-x86_64"
+          mkdir -p "$dist"
+          install -m755 build/xr-workspace "$dist/xr-workspace"
+          install -m755 xrctl "$dist/xrctl"
+          install -m755 xr-game "$dist/xr-game"
+          install -m755 packaging/hotplug/xr-glasses-hotplugd "$dist/xr-glasses-hotplugd"
+          tar -czf "${dist}.tar.gz" "$dist"
+          echo "TARBALL=${dist}.tar.gz" >> "$GITHUB_ENV"
+          ls -lh "${dist}.tar.gz"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: xr-workspace-arch-linux
-          path: build/xr-workspace
+          path: ${{ env.TARBALL }}
 
       # On tag push → create a versioned GitHub release
       - name: Release (tag)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: build/xr-workspace
+          files: ${{ env.TARBALL }}
           generate_release_notes: true
 
       # On master push → update the rolling "latest" pre-release
@@ -52,4 +70,4 @@ jobs:
           tag_name: latest
           name: "Latest build"
           prerelease: true
-          files: build/xr-workspace
+          files: ${{ env.TARBALL }}
