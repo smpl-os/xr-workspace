@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# xrctl — tiny control client for xr-workspace's runtime JSON API.
+# Sends one JSON request to the control socket and prints the response.
+#
+# Examples:
+#   ./xrctl list
+#   ./xrctl recenter
+#   ./xrctl layout 2.5                         # set arc radius
+#   ./xrctl add right2 60 1.0 '#404040'        # id angle size_m color
+#   ./xrctl set center size_m 1.4
+#   ./xrctl remove right2
+#   ./xrctl on                                # enable head-tracking output (mode B)
+#   ./xrctl off                               # disable head-tracking output
+#   ./xrctl profile elite-dangerous           # switch to a per-game profile
+#   ./xrctl raw '{"cmd":"list"}'               # send raw JSON
+#
+# Requires: socat (preferred) or nc with -U support.
+
+set -euo pipefail
+
+SOCKET="${XR_WORKSPACE_SOCKET:-${XDG_RUNTIME_DIR:-/tmp}/xr-workspace.sock}"
+
+send() {
+    local payload="$1"
+    if command -v socat >/dev/null 2>&1; then
+        printf '%s\n' "$payload" | socat -t1 - "UNIX-CONNECT:$SOCKET"
+    elif command -v nc >/dev/null 2>&1; then
+        printf '%s\n' "$payload" | nc -U -q1 "$SOCKET"
+    else
+        echo "error: need 'socat' or 'nc' with -U support" >&2
+        exit 1
+    fi
+}
+
+cmd="${1:-list}"; shift || true
+
+case "$cmd" in
+    list|get_config|recenter)
+        send "{\"cmd\":\"$cmd\"}" ;;
+    layout)
+        send "{\"cmd\":\"layout\",\"radius\":${1:-2.0}}" ;;
+    add)
+        # add <id> <angle_deg> <size_m> [color]
+        id="$1"; angle="${2:-0}"; size="${3:-1.0}"; color="${4:-#283c78}"
+        send "{\"cmd\":\"add\",\"monitor\":{\"id\":\"$id\",\"angle_deg\":$angle,\"size_m\":$size,\"color\":\"$color\"}}" ;;
+    remove)
+        send "{\"cmd\":\"remove\",\"id\":\"$1\"}" ;;
+    set)
+        # set <id> <prop> <value>   (numeric value, or quote in raw mode)
+        id="$1"; prop="$2"; val="$3"
+        send "{\"cmd\":\"set\",\"id\":\"$id\",\"props\":{\"$prop\":$val}}" ;;
+    on)
+        send '{"cmd":"head_tracking","enabled":true}' ;;
+    off)
+        send '{"cmd":"head_tracking","enabled":false}' ;;
+    headtrack)
+        # headtrack <prop> <value>   e.g. headtrack yaw_scale 1.5
+        send "{\"cmd\":\"head_tracking\",\"set\":{\"$1\":$2}}" ;;
+    profile)
+        send "{\"cmd\":\"profile\",\"name\":\"$1\"}" ;;
+    render)
+        # render <prop> <value>   e.g. render fov_deg 50  |  render stereo true
+        send "{\"cmd\":\"render\",\"$1\":$2}" ;;
+    reload)
+        send '{"cmd":"reload"}' ;;
+    save)
+        # save [path]
+        if [ -n "${1:-}" ]; then send "{\"cmd\":\"save\",\"path\":\"$1\"}"; else send '{"cmd":"save"}'; fi ;;
+    hypr-create-output)
+        send '{"cmd":"hypr_create_output"}' ;;
+    hypr-remove-output)
+        send "{\"cmd\":\"hypr_remove_output\",\"name\":\"$1\"}" ;;
+    hypr-move-window)
+        # hypr-move-window <output> [window_addr]
+        if [ -n "${2:-}" ]; then send "{\"cmd\":\"hypr_move_window\",\"output\":\"$1\",\"window\":\"$2\"}"; else send "{\"cmd\":\"hypr_move_window\",\"output\":\"$1\"}"; fi ;;
+    raw)
+        send "$1" ;;
+    *)
+        echo "usage: xrctl {list|get_config|recenter|layout R|add id angle size [color]|remove id|set id prop val|on|off|headtrack prop val|profile NAME|render prop val|reload|save [path]|hypr-create-output|hypr-remove-output NAME|hypr-move-window OUT [addr]|raw JSON}" >&2
+        exit 1 ;;
+esac

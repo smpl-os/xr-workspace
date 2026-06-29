@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# xr-game — run a game with an xr-workspace head-tracking profile active only for
+# its lifetime. Selects the profile, enables head-tracking (mode B), launches the
+# game, then disables tracking again on exit.
+#
+# Usage:
+#   xr-game <profile> <command...>
+#
+# Examples:
+#   xr-game elite-dangerous steam steam://rungameid/359320
+#   xr-game dcs %command%          # from a Steam launch-option wrapper
+#
+# Requires xr-workspace to be running (it owns the control socket) and the named
+# profile to exist in config.json. See README/SPEC for the OpenTrack bridge setup.
+set -uo pipefail
+
+HERE="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+XRCTL="$HERE/xrctl"
+
+if [[ $# -lt 2 ]]; then
+    echo "usage: xr-game <profile> <command...>" >&2
+    exit 2
+fi
+
+profile="$1"; shift
+
+"$XRCTL" profile "$profile" >/dev/null 2>&1 \
+    || echo "xr-game: could not select profile '$profile' (is xr-workspace running?)" >&2
+"$XRCTL" on >/dev/null 2>&1 || true
+
+cleanup() { "$XRCTL" off >/dev/null 2>&1 || true; }
+trap cleanup EXIT INT TERM
+
+"$@"

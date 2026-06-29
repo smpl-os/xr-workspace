@@ -1,0 +1,108 @@
+name: release
+
+# Auto-build and publish a release whenever main advances (e.g. a PR is merged).
+# Each run bumps the patch version in VERSION, tags it, builds the renderer, and
+# publishes a tarball to GitHub Releases — same integration contract smplOS uses
+# for the other native apps (st-wl, micro).
+
+on:
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - 'VERSION'            # avoid an infinite loop from our own version-bump commit
+      - '**/*.md'
+      - 'docs/**'
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version part to bump'
+        required: false
+        default: 'patch'
+        type: choice
+        options: [patch, minor, major]
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write           # push the version bump + tag, create the release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          # All Wayland protocols are vendored in protocols/, so only the core
+          # client lib + wayland-scanner + EGL/GLES/GBM dev headers are needed.
+          sudo apt-get install -y --no-install-recommends \
+            cmake build-essential pkg-config \
+            libwayland-dev wayland-protocols \
+            libegl-dev libgles-dev libgbm-dev
+
+      - name: Compute next version
+        id: ver
+        run: |
+          set -euo pipefail
+          cur="$(tr -d '[:space:]' < VERSION)"
+          IFS=. read -r MA MI PA <<< "$cur"
+          bump="${{ github.event.inputs.bump || 'patch' }}"
+          case "$bump" in
+            major) MA=$((MA+1)); MI=0; PA=0 ;;
+            minor) MI=$((MI+1)); PA=0 ;;
+            *)     PA=$((PA+1)) ;;
+          esac
+          next="${MA}.${MI}.${PA}"
+          echo "version=$next" >> "$GITHUB_OUTPUT"
+          echo "tag=v$next"   >> "$GITHUB_OUTPUT"
+          echo "$next" > VERSION
+          echo "Bumping $cur → $next"
+
+      - name: Configure & build (Release)
+        run: |
+          set -euo pipefail
+          cmake -B build -DCMAKE_BUILD_TYPE=Release \
+            -DXR_VERSION="${{ steps.ver.outputs.version }}"
+          cmake --build build -j"$(nproc)"
+
+      - name: Package tarball
+        id: pkg
+        run: |
+          set -euo pipefail
+          ver="${{ steps.ver.outputs.version }}"
+          name="xr-workspace-${ver}-x86_64"
+          mkdir -p "dist/$name"
+          cp build/xr-workspace "dist/$name/"
+          cp xrctl xr-game "dist/$name/"
+          cp -r packaging "dist/$name/"
+          cp config.example.json README* SPEC.md "dist/$name/" 2>/dev/null || true
+          strip "dist/$name/xr-workspace" || true
+          tar -C dist -czf "dist/${name}.tar.gz" "$name"
+          echo "tarball=dist/${name}.tar.gz" >> "$GITHUB_OUTPUT"
+
+      - name: Commit version bump
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add VERSION
+          git commit -m "chore: release ${{ steps.ver.outputs.tag }} [skip ci]"
+          git tag "${{ steps.ver.outputs.tag }}"
+          git push origin HEAD:"${{ github.ref_name }}"
+          git push origin "${{ steps.ver.outputs.tag }}"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: xr-workspace ${{ steps.ver.outputs.version }}
+          files: ${{ steps.pkg.outputs.tarball }}
+          generate_release_notes: true

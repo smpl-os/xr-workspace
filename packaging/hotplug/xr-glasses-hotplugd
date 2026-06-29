@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+# xr-glasses-hotplugd — auto start/stop xr-workspace when VITURE XR glasses
+# connect or disconnect.
+#
+# WHY DISPLAY-HOTPLUG (not pure USB)
+# ──────────────────────────────────
+# xr-workspace renders a layer-shell overlay ONTO the glasses' display output.
+# The glasses only become a usable monitor once USB-C DP-alt negotiates and the
+# compositor gains a new output. Hyprland emits `monitoradded`/`monitorremoved`
+# on its event socket (socket2) at exactly that moment — the most reliable
+# "glasses are ready / gone" signal. We key off that, matching the VITURE EDID.
+#
+# The IMU arrives over the USB HID side (handled by the udev uaccess rule +
+# the pose source inside xr-workspace); it is present whenever the glasses are.
+#
+# Config (env or /etc/xr-workspace/hotplug.conf or ~/.config/xr-workspace/hotplug.conf):
+#   XR_GLASSES_MATCH   substring matched (case-insensitive) against the Hyprland
+#                      monitor description/name to identify the glasses.
+#                      Default: "viture"
+#   XR_WORKSPACE_BIN   path to the renderer binary. Default: resolves from PATH.
+#   XR_WORKSPACE_ARGS  extra args passed to the renderer. Default: "--monitors 3"
+
+set -uo pipefail
+
+# ── Load optional config files (no env-var requirement; these are file-driven) ─
+for cfg in /etc/xr-workspace/hotplug.conf "${XDG_CONFIG_HOME:-$HOME/.config}/xr-workspace/hotplug.conf"; do
+    # shellcheck disable=SC1090
+    [ -r "$cfg" ] && . "$cfg"
+done
+
+MATCH="${XR_GLASSES_MATCH:-viture}"
+BIN="${XR_WORKSPACE_BIN:-$(command -v xr-workspace || echo /usr/bin/xr-workspace)}"
+EXTRA_ARGS="${XR_WORKSPACE_ARGS:---monitors 3}"
+
+TAG="[xr-glasses-hotplugd]"
+log() { printf '%s %s\n' "$TAG" "$*"; }
+
+RUNTIME="${XDG_RUNTIME_DIR:-/tmp}"
+STATE_PID=""          # PID of the running renderer (empty = not running)
+TRACKED_OUTPUT=""     # Hyprland monitor name currently driving the glasses
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+# Return the Hyprland monitor NAME whose name/description matches $MATCH, or "".
+find_glasses_output() {
+    have hyprctl || { echo ""; return; }
+    # Prefer JSON for robust matching; fall back to plain text.
+    if have jq; then
+        hyprctl -j monitors 2>/dev/null \
+            | jq -r --arg m "$MATCH" \
+                '.[] | select((.name + " " + .description) | ascii_downcase | contains($m | ascii_downcase)) | .name' \
+            | head -n1
+    else
+        hyprctl monitors 2>/dev/null | awk -v m="$(printf '%s' "$MATCH" | tr '[:upper:]' '[:lower:]')" '
+            /^Monitor /     { name=$2 }
+            /description:/  { d=tolower($0); if (index(d, m)) { print name; exit } }
+            /^Monitor /     { if (tolower($0) ~ m) { print name; exit } }
+        '
+    fi
+}
+
+renderer_alive() { [ -n "$STATE_PID" ] && kill -0 "$STATE_PID" 2>/dev/null; }
+
+start_renderer() {
+    local output="$1"
+    if renderer_alive; then
+        log "renderer already running (pid $STATE_PID) on $TRACKED_OUTPUT"
+        return
+    fi
+    [ -x "$BIN" ] || { log "renderer binary not found/executable: $BIN"; return; }
+    log "glasses detected on output '$output' — launching renderer"
+    # shellcheck disable=SC2086
+    "$BIN" --output "$output" $EXTRA_ARGS &
+    STATE_PID=$!
+    TRACKED_OUTPUT="$output"
+    log "renderer started (pid $STATE_PID)"
+}
+
+stop_renderer() {
+    if renderer_alive; then
+        log "glasses removed — stopping renderer (pid $STATE_PID)"
+        kill "$STATE_PID" 2>/dev/null
+        # Give it a moment to release the layer surface, then ensure it's gone.
+        for _ in 1 2 3 4 5; do renderer_alive || break; sleep 0.2; done
+        renderer_alive && kill -9 "$STATE_PID" 2>/dev/null
+    fi
+    STATE_PID=""
+    TRACKED_OUTPUT=""
+}
+
+reconcile() {
+    local out
+    out="$(find_glasses_output)"
+    if [ -n "$out" ]; then
+        renderer_alive || start_renderer "$out"
+    else
+        renderer_alive && stop_renderer
+    fi
+}
+
+cleanup() { stop_renderer; exit 0; }
+
+# ── One-shot mode: reconcile once and exit (for manual keybind toggling) ──────
+if [ "${1:-}" = "--once" ]; then
+    reconcile
+    exit 0
+fi
+
+trap cleanup INT TERM EXIT
+
+# ── Locate Hyprland's event socket (socket2) ──────────────────────────────────
+sig="${HYPRLAND_INSTANCE_SIGNATURE:-}"
+sock2=""
+if [ -n "$sig" ]; then
+    for base in "$RUNTIME/hypr/$sig" "/tmp/hypr/$sig"; do
+        [ -S "$base/.socket2.sock" ] && { sock2="$base/.socket2.sock"; break; }
+    done
+fi
+
+# Initial reconcile (glasses may already be connected at login).
+reconcile
+
+if [ -z "$sock2" ] || ! have socat; then
+    # No event socket or no socat → fall back to polling every 2s.
+    log "event socket unavailable (need Hyprland + socat); polling mode"
+    while :; do
+        sleep 2
+        renderer_alive || STATE_PID=""   # reap if the renderer exited on its own
+        reconcile
+    done
+fi
+
+log "watching Hyprland events on $sock2 (match: '$MATCH')"
+# Stream events; react only to monitor add/remove to keep it cheap.
+socat -U - "UNIX-CONNECT:$sock2" 2>/dev/null | while IFS= read -r line; do
+    case "$line" in
+        monitoradded*|monitoraddedv2*|monitorremoved*|monitorremovedv2*)
+            reconcile
+            ;;
+    esac
+done
+
+# If socat dies (compositor restart), fall through and let systemd restart us.
+log "event stream ended"
